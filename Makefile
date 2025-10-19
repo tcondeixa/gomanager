@@ -16,6 +16,14 @@ help: ## Display help
 clean: ## Clean all binaries and temporary files
 	rm -rf bin
 
+.PHONY: mod
+mod.ci: ## Run go mod tidy with dif to exit with failure instead of fix
+	go mod tidy -diff
+
+.PHONY: mod
+mod: ## Run go mod tidy
+	go mod tidy
+
 .PHONY: fmt
 fmt: $(SOURCES) ## Format code
 	gofmt -w -s $(SOURCES)
@@ -29,7 +37,7 @@ deps: ## Install required dev dependencies
 	golines --version
 
 .PHONY: pre-commit
-pre-commit: fmt lint ## Run all pre-commit targets
+pre-commit: mod fmt lint ## Run all pre-commit targets
 
 .PHONY: pre-commit.install
 pre-commit.install: ## Install pre-commit target as git pre-commit hook

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,23 +46,12 @@ func runDump(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}
 
-	items := db.GetAllItems()
-
-	fp, err := os.OpenFile(dumpOptions.filePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	err = db.Dump(dumpOptions.filePath)
 	if err != nil {
-		return err
-	}
-	defer fp.Close()
-
-	err = json.NewEncoder(fp).Encode(items)
-	if err != nil {
-		return err
+		return fmt.Errorf("failed to dump installed packages: %w", err)
 	}
 
-	err = fp.Sync()
-	if err != nil {
-		return err
-	}
+	fmt.Println("Installed packages dumped to: ", dumpOptions.filePath)
 
 	return nil
 }

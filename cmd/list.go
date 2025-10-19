@@ -27,12 +27,17 @@ var listCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(listCmd)
 
-	listCmd.Flags().StringVar(
+	listCmd.Flags().StringVarP(
 		&listOptions.outputFormat,
 		"output",
+		"o",
 		"text",
 		"Output format: "+strings.Join(availableOutputs, ", "),
 	)
+	cobra.CheckErr(listCmd.RegisterFlagCompletionFunc(
+		"output",
+		cobra.FixedCompletions(availableOutputs, cobra.ShellCompDirectiveDefault),
+	))
 }
 
 func runList(_ *cobra.Command, _ []string) error {
@@ -43,28 +48,38 @@ func runList(_ *cobra.Command, _ []string) error {
 	}
 
 	items := db.GetAllItems()
-
 	switch listOptions.outputFormat {
 	case "json":
-		bytes, err := json.MarshalIndent(items, "", "  ")
-		if err != nil {
-			return fmt.Errorf("failed to encode items to json: %w", err)
-		}
-
-		fmt.Println(string(bytes))
-		return nil
+		return printAsJSON(items)
 	case "text":
-		if len(items) == 0 {
-			fmt.Println("No installed packages found.")
-			return nil
-		}
+		return printAsText(items)
+	}
 
-		fmt.Println("Installed Packages:")
+	return nil
+}
+
+func printAsJSON(items map[string]pkg.Package) error {
+	bytes, err := json.MarshalIndent(items, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to encode items to json: %w", err)
+	}
+
+	fmt.Println(string(bytes))
+
+	return nil
+}
+
+func printAsText(items map[string]pkg.Package) error {
+	if len(items) == 0 {
+		fmt.Println("No installed packages found.")
+		return nil
+	}
+
+	fmt.Println("Installed Packages:")
+	fmt.Println("-------------------")
+	for _, item := range items {
+		fmt.Println(item.String())
 		fmt.Println("-------------------")
-		for _, item := range items {
-			fmt.Println(item.String())
-			fmt.Println("-------------------")
-		}
 	}
 
 	return nil

@@ -23,7 +23,11 @@ var unistallCmd = &cobra.Command{
 	RunE:              runUninstall,
 }
 
-func installedPackagesCompletion(_ *cobra.Command, _ []string, _ string) ([]cobra.Completion, cobra.ShellCompDirective) {
+func installedPackagesCompletion(
+	_ *cobra.Command,
+	_ []string,
+	_ string,
+) ([]cobra.Completion, cobra.ShellCompDirective) {
 	db := storage.New[pkg.Package](rootOptions.storagePath)
 	err := db.Load()
 	if err != nil {
@@ -32,7 +36,6 @@ func installedPackagesCompletion(_ *cobra.Command, _ []string, _ string) ([]cobr
 
 	allItems := db.GetAllItems()
 	return slices.Collect(maps.Keys(allItems)), cobra.ShellCompDirectiveNoFileComp
-
 }
 
 func init() {
@@ -53,11 +56,10 @@ func runUninstall(_ *cobra.Command, args []string) error {
 
 	slog.Info("Current golang bin dir", "path", path)
 
-	// uninstall and save to storage
 	for _, name := range args {
 		item, exists := db.GetItem(name)
 		if !exists {
-			return fmt.Errorf("package %s not found in storage", item)
+			return fmt.Errorf("package %s not found in storage", name)
 		}
 
 		binPath := filepath.Join(path, item.Name)
@@ -65,7 +67,7 @@ func runUninstall(_ *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to remove binary at %s: %w", binPath, err)
 		}
-		fmt.Println("Removing binary at: ", binPath)
+		slog.Info("Removed binary", "path", binPath)
 
 		db.DeleteItem(item.ID())
 		err = db.Save()

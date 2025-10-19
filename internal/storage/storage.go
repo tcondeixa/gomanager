@@ -36,7 +36,15 @@ func (s *Storage[T]) Load() error {
 }
 
 func (s *Storage[T]) Save() error {
-	fp, err := os.OpenFile(s.filePath, os.O_WRONLY, 0o644)
+	return s.save(s.filePath, os.O_WRONLY)
+}
+
+func (s *Storage[T]) Dump(file string) error {
+	return s.save(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
+}
+
+func (s *Storage[T]) save(file string, flag int) error {
+	fp, err := os.OpenFile(file, flag, 0o644)
 	if err != nil {
 		return err
 	}
