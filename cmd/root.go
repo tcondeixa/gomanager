@@ -2,26 +2,31 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"net/http"
+	"log/slog"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 )
 
+const (
+	binaryName            = "goinstall"
+	goInstallConfigDirEnv = "GOINSTALL_CONFIG_DIR"
+	goInstallDir          = "goinstall"
+	goInstallStorage      = "storage.json"
+)
+
 var rootOptions struct {
-	logLevel string
+	logLevel    string
+	configDir   string
+	storagePath string
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "goinstall",
+	Use:   binaryName,
 	Args:  cobra.NoArgs,
-	Short: "CLI to manage go install binaries",
-	Long:  `CLI to manage go install binaries`,
+	Short: "CLI to manage go binaries",
+	Long:  `CLI to manage go binaries`,
 }
 
 func Execute(version string) {
@@ -30,27 +35,75 @@ func Execute(version string) {
 }
 
 func init() {
-	cobra.OnInitialize(initLogging)
+	cobra.OnInitialize(initLogging, getConfigDir)
 
-	rootCmd.PersistentFlags().StringVar(
+	rootCmd.PersistentFlags().StringVarP(
 		&rootOptions.logLevel,
-		"log-level",
+		"log",
+		"l",
 		"error",
 		"Choose log level [panic,fatal,error,warn,info,debug,trace]",
 	)
 }
 
 func initLogging() {
-	level, err := log.ParseLevel(rootOptions.logLevel)
+	level := slog.LevelInfo
+	switch rootOptions.logLevel {
+	case "error":
+		level = slog.LevelError.Level()
+	case "warn":
+		level = slog.LevelWarn.Level()
+	case "info":
+		level = slog.LevelInfo.Level()
+	case "debug":
+		level = slog.LevelDebug.Level()
+	default:
+		slog.Error("invalid log level", "level", rootOptions.logLevel)
+		os.Exit(1)
+	}
+
+	slog.SetLogLoggerLevel(level)
+}
+
+func getConfigDir() {
+	rootOptions.configDir = os.Getenv(goInstallConfigDirEnv)
+	if rootOptions.configDir == "" {
+		userDir, err := os.UserConfigDir()
+		if err != nil {
+			slog.Error("failed to get user config dir", "error", err)
+			os.Exit(1)
+		}
+
+		rootOptions.configDir = filepath.Join(userDir, goInstallDir)
+	}
+
+	// ensure the config dir exists
+	slog.Info("using config dir", "path", rootOptions.configDir)
+	err := os.MkdirAll(rootOptions.configDir, 0o755)
 	if err != nil {
-		log.Fatalf("failed to parse log level: %v", err)
+		slog.Error("failed to create config dir", "error", err, "path", rootOptions.configDir)
+		os.Exit(1)
 	}
 
-	if level == level == log.DebugLevel || level == log.TraceLevel {
-		log.SetReportCaller(true)
-	} else {
-		log.SetReportCaller(false)
+	rootOptions.storagePath = filepath.Join(rootOptions.configDir, goInstallStorage)
+	slog.Info("using storage file", "path", rootOptions.storagePath)
+}
+
+func goBinPath() (string, error) {
+	gobin := os.Getenv("GOBIN")
+	if gobin != "" {
+		return gobin, nil
 	}
 
-	log.SetLevel(level)
+	gopath := os.Getenv("GOPATH")
+	if gopath != "" {
+		return fmt.Sprintf("%s/bin", gopath), nil
+	}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s/go/bin", home), nil
 }
