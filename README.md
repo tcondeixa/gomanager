@@ -8,7 +8,7 @@ A CLI tool to manage Go installed binaries with tracking and easy updates.
 - 📋 **List installed packages** with details
 - 🔄 **Update packages** to latest versions
 - 🗑️ **Uninstall packages** cleanly
-- 💾 **Export/import** package lists
+- 💾 **Export/Import** package lists
 - 🎯 **Custom binary names** for installed tools
 
 ## Installation
@@ -102,26 +102,30 @@ goinstall uninstall tool-name
 goinstall uninstall tool1 tool2 tool3
 ```
 
-### Dump packages
+### Export packages
 
 ```bash
 # Export to file (defaults to ~/goinstall.json)
-goinstall dump
+goinstall export
 
 # Export to custom location
-goinstall dump --file /path/to/backup.json
+goinstall export --file /path/to/backup.json
+```
+
+### Import packages
+
+```bash
+# Import from file (defaults to ~/goinstall.json)
+goinstall import
+
+# Export to custom location
+goinstall import --file /path/to/backup.json
 ```
 
 ## Configuration
 
-goinstall stores its data in:
-
-- **Config directory**: `$HOME/.config/goinstall/` (or `$GOINSTALL_CONFIG_DIR`)
-- **Storage file**: `storage.json` (tracks installed packages)
-
-### Environment Variables
-
-- `GOINSTALL_CONFIG_DIR`: Override default config directory
+goinstall stores its data in the default config directory depending on the OS.
+The **config directory** can set by defining the `$GOINSTALL_CONFIG_DIR` environment variable.
 
 ## Examples
 

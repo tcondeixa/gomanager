@@ -27,7 +27,7 @@ func (s *Storage[T]) Load() error {
 		return fmt.Errorf("failed to ensure storage file: %w", err)
 	}
 
-	err = s.loadFile()
+	err = s.loadFile(s.filePath)
 	if err != nil {
 		return fmt.Errorf("failed to load storage file: %w", err)
 	}
@@ -35,11 +35,15 @@ func (s *Storage[T]) Load() error {
 	return nil
 }
 
+func (s *Storage[T]) Import(file string) error {
+	return s.loadFile(file)
+}
+
 func (s *Storage[T]) Save() error {
 	return s.save(s.filePath, os.O_WRONLY)
 }
 
-func (s *Storage[T]) Dump(file string) error {
+func (s *Storage[T]) Export(file string) error {
 	return s.save(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
 }
 
@@ -88,8 +92,8 @@ func (s *Storage[T]) ensureFile() error {
 	return nil
 }
 
-func (s *Storage[T]) loadFile() error {
-	fp, err := os.OpenFile(s.filePath, os.O_RDONLY, 0o644)
+func (s *Storage[T]) loadFile(file string) error {
+	fp, err := os.OpenFile(file, os.O_RDONLY, 0o644)
 	if err != nil {
 		return fmt.Errorf("failed to open storage file: %w", err)
 	}

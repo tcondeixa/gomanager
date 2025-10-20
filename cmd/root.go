@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,8 @@ const (
 	goInstallDir          = "goinstall"
 	goInstallStorage      = "storage.json"
 )
+
+var logLevels = []string{"error", "warn", "info", "debug"}
 
 var rootOptions struct {
 	logLevel    string
@@ -42,8 +45,13 @@ func init() {
 		"log",
 		"l",
 		"error",
-		"Choose log level [panic,fatal,error,warn,info,debug,trace]",
+		"Choose log level: "+strings.Join(logLevels, ", "),
 	)
+
+	cobra.CheckErr(rootCmd.RegisterFlagCompletionFunc(
+		"log",
+		cobra.FixedCompletions(logLevels, cobra.ShellCompDirectiveDefault),
+	))
 }
 
 func initLogging() {
