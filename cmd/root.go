@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	binaryName            = "goinstall"
-	goInstallConfigDirEnv = "GOINSTALL_CONFIG_DIR"
-	goInstallDir          = "goinstall"
-	goInstallStorage      = "storage.json"
+	binaryName            = "gomanager"
+	gomanagerConfigDirEnv = "gomanager_CONFIG_DIR"
+	gomanagerDir          = "gomanager"
+	gomanagerStorage      = "storage.json"
 )
 
 var logLevels = []string{"error", "warn", "info", "debug"}
@@ -74,7 +74,7 @@ func initLogging() {
 }
 
 func getConfigDir() {
-	rootOptions.configDir = os.Getenv(goInstallConfigDirEnv)
+	rootOptions.configDir = os.Getenv(gomanagerConfigDirEnv)
 	if rootOptions.configDir == "" {
 		userDir, err := os.UserConfigDir()
 		if err != nil {
@@ -82,7 +82,7 @@ func getConfigDir() {
 			os.Exit(1)
 		}
 
-		rootOptions.configDir = filepath.Join(userDir, goInstallDir)
+		rootOptions.configDir = filepath.Join(userDir, gomanagerDir)
 	}
 
 	// ensure the config dir exists
@@ -93,7 +93,7 @@ func getConfigDir() {
 		os.Exit(1)
 	}
 
-	rootOptions.storagePath = filepath.Join(rootOptions.configDir, goInstallStorage)
+	rootOptions.storagePath = filepath.Join(rootOptions.configDir, gomanagerStorage)
 	slog.Info("using storage file", "path", rootOptions.storagePath)
 }
 

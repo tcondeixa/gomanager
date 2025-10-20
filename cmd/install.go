@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/tcondeixa/goinstall/internal/pkg"
-	"github.com/tcondeixa/goinstall/internal/storage"
+	"github.com/tcondeixa/gomanager/internal/pkg"
+	"github.com/tcondeixa/gomanager/internal/storage"
 )
 
 var installOptions struct {
@@ -19,7 +19,7 @@ var installCmd = &cobra.Command{
 	Use:     "install",
 	Short:   "Install packages",
 	Long:    `Install packages`,
-	Example: fmt.Sprintf("  %s install github.com/tcondeixa/goinstall@latest", binaryName),
+	Example: fmt.Sprintf("  %s install github.com/tcondeixa/gomanager@latest", binaryName),
 	RunE:    runInstall,
 }
 
@@ -66,14 +66,14 @@ func runInstall(_ *cobra.Command, args []string) error {
 			}
 
 			if exists {
-				tmpPath := oldPath + ".goinstall"
+				tmpPath := oldPath + ".gomanager"
 				err = os.Rename(oldPath, tmpPath)
 				if err != nil {
 					return fmt.Errorf("failed to rename existing binary: %v", err)
 				}
 
 				defer func() {
-					err = os.Rename(oldPath+".goinstall", oldPath)
+					err = os.Rename(oldPath+".gomanager", oldPath)
 					if err != nil {
 						slog.Error("failed to restore original binary", "error", err)
 					}

@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tcondeixa/goinstall/internal/pkg"
-	"github.com/tcondeixa/goinstall/internal/storage"
+	"github.com/tcondeixa/gomanager/internal/pkg"
+	"github.com/tcondeixa/gomanager/internal/storage"
 )
 
 var availableOutputs = []string{"text", "json"}

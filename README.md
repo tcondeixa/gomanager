@@ -1,4 +1,4 @@
-# goinstall
+# gomanager
 
 A CLI tool to manage Go installed binaries with tracking and easy updates.
 
@@ -16,39 +16,39 @@ A CLI tool to manage Go installed binaries with tracking and easy updates.
 ### Option 1: Install from source (recommended)
 
 ```bash
-go install github.com/tcondeixa/goinstall@latest
+go install github.com/tcondeixa/gomanager@latest
 ```
 
 ### Option 2: Download pre-built binaries
 
-Download the latest release for your platform from the [releases page](https://github.com/tcondeixa/goinstall/releases).
+Download the latest release for your platform from the [releases page](https://github.com/tcondeixa/gomanager/releases).
 
 ### Option 3: Build from source
 
 ```bash
-git clone https://github.com/tcondeixa/goinstall.git
-cd goinstall
+git clone https://github.com/tcondeixa/gomanager.git
+cd gomanager
 make build.local
-# Binary will be in bin/goinstall
+# Binary will be in bin/gomanager
 ```
 
 ## Quick Start
 
 ```bash
 # Install a Go package
-goinstall install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+gomanager install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 # List installed packages
-goinstall list
+gomanager list
 
 # Update all packages to latest
-goinstall update
+gomanager update
 
 # Update specific package
-goinstall update -n golangci-lint
+gomanager update -n golangci-lint
 
 # Uninstall a package
-goinstall uninstall golangci-lint
+gomanager uninstall golangci-lint
 ```
 
 ## Usage
@@ -57,86 +57,86 @@ goinstall uninstall golangci-lint
 
 ```bash
 # Install latest version
-goinstall install github.com/user/tool@latest
+gomanager install github.com/user/tool@latest
 
 # Install specific version
-goinstall install github.com/user/tool@v1.2.3
+gomanager install github.com/user/tool@v1.2.3
 
 # Install with custom binary name
-goinstall install github.com/user/tool@latest --name my-tool
+gomanager install github.com/user/tool@latest --name my-tool
 
 # Install multiple packages
-goinstall install pkg1@latest pkg2@v1.0.0
+gomanager install pkg1@latest pkg2@v1.0.0
 ```
 
 ### List installed packages
 
 ```bash
 # List in human-readable format
-goinstall list
+gomanager list
 
 # List in JSON format
-goinstall list --output json
+gomanager list --output json
 ```
 
 ### Update packages
 
 ```bash
 # Update all packages with "latest" version
-goinstall update
+gomanager update
 
 # Update specific package
-goinstall update --name tool-name
+gomanager update --name tool-name
 
 # Force update all packages (including pinned versions)
-goinstall update --force
+gomanager update --force
 ```
 
 ### Uninstall packages
 
 ```bash
 # Uninstall one package
-goinstall uninstall tool-name
+gomanager uninstall tool-name
 
 # Uninstall multiple packages
-goinstall uninstall tool1 tool2 tool3
+gomanager uninstall tool1 tool2 tool3
 ```
 
 ### Export packages
 
 ```bash
-# Export to file (defaults to ~/goinstall.json)
-goinstall export
+# Export to file (defaults to ~/gomanager.json)
+gomanager export
 
 # Export to custom location
-goinstall export --file /path/to/backup.json
+gomanager export --file /path/to/backup.json
 ```
 
 ### Import packages
 
 ```bash
-# Import from file (defaults to ~/goinstall.json)
-goinstall import
+# Import from file (defaults to ~/gomanager.json)
+gomanager import
 
 # Export to custom location
-goinstall import --file /path/to/backup.json
+gomanager import --file /path/to/backup.json
 ```
 
 ## Configuration
 
-goinstall stores its data in the default config directory depending on the OS.
-The **config directory** can set by defining the `$GOINSTALL_CONFIG_DIR` environment variable.
+gomanager stores its data in the default config directory depending on the OS.
+The **config directory** can set by defining the `$gomanager_CONFIG_DIR` environment variable.
 
 ## Examples
 
 ```bash
 # Install popular Go tools
-goinstall install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-goinstall install github.com/air-verse/air@latest
-goinstall install github.com/goreleaser/goreleaser@latest
+gomanager install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+gomanager install github.com/air-verse/air@latest
+gomanager install github.com/goreleaser/goreleaser@latest
 
 # List what's installed
-goinstall list
+gomanager list
 # Output:
 # Installed Packages:
 # -------------------
@@ -146,10 +146,10 @@ goinstall list
 # -------------------
 
 # Update everything
-goinstall update
+gomanager update
 
 # Clean up unused tools
-goinstall uninstall air goreleaser
+gomanager uninstall air goreleaser
 ```
 
 ## Shell Completion
@@ -158,13 +158,13 @@ Enable shell completion for better UX:
 
 ```bash
 # Bash
-goinstall completion bash > /etc/bash_completion.d/goinstall
+gomanager completion bash > /etc/bash_completion.d/gomanager
 
 # Zsh
-goinstall completion zsh > "${fpath[1]}/_goinstall"
+gomanager completion zsh > "${fpath[1]}/_gomanager"
 
 # Fish
-goinstall completion fish > ~/.config/fish/completions/goinstall.fish
+gomanager completion fish > ~/.config/fish/completions/gomanager.fish
 ```
 
 ## Requirements

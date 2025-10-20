@@ -1,6 +1,6 @@
 package main
 
-import "github.com/tcondeixa/goinstall/cmd"
+import "github.com/tcondeixa/gomanager/cmd"
 
 var version = "v0.1.0"
 

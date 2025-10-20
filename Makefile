@@ -1,4 +1,4 @@
-BINARY               = goinstall
+BINARY               = gomanager
 VERSION              = $(shell sed -n 's/var version = "\(v[0-9]*\.[0-9]*\.[0-9]*\)"/\1/p' main.go)
 SOURCES              = $(shell find . -name '*.go')
 GOPKGS               = $(shell go list ./... | grep -v test)
@@ -17,7 +17,7 @@ clean: ## Clean all binaries and temporary files
 	rm -rf bin
 
 .PHONY: mod
-mod.ci: ## Run go mod tidy with dif to exit with failure instead of fix
+mod.ci: ## Run go mod tidy with diff to exit with failure instead of fix
 	go mod tidy -diff
 
 .PHONY: mod
@@ -86,8 +86,8 @@ build/darwin/amd64/$(BINARY): $(SOURCES)
 build/darwin/arm64/$(BINARY): $(SOURCES)
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) -o bin/darwin/arm64/$(BINARY) -ldflags "$(LDFLAGS)" .
 
-.PHONY: build.package
-build.package: build.linux.amd64 build.linux.arm64 build.darwin.amd64 build.darwin.arm64 ## Create all tars with binaries for darwin/linux with arm64/amd64
+.PHONY: build.all
+build.all: build.linux.amd64 build.linux.arm64 build.darwin.amd64 build.darwin.arm64 ## Create all tars with binaries for darwin/linux with arm64/amd64
 	tar -C bin/linux/amd64 -czvf $(BINARY)-$(VERSION)-linux-amd64.tar.gz .
 	tar -C bin/linux/arm64 -czvf $(BINARY)-$(VERSION)-linux-arm64.tar.gz .
 	tar -C bin/darwin/amd64 -czvf $(BINARY)-$(VERSION)-darwin-amd64.tar.gz .
