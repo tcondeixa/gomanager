@@ -2,6 +2,14 @@
 
 set -e
 
+# Check if the current gh profile is tcondeixa
+CURRENT_USER=$(gh config get user -h github.com)
+if [ "$CURRENT_USER" != "tcondeixa" ]; then
+    echo "Error: Current gh profile is '$CURRENT_USER', expected 'tcondeixa'"
+    echo "Please change your gh profile to tcondeixa and try again"
+    exit 1
+fi
+
 make mod.ci
 make lint.ci
 make
