@@ -12,7 +12,7 @@ import (
 
 const (
 	binaryName            = "gomanager"
-	gomanagerConfigDirEnv = "gomanager_CONFIG_DIR"
+	gomanagerConfigDirEnv = "GOMANAGER_CONFIG_DIR"
 	gomanagerDir          = "gomanager"
 	gomanagerStorage      = "storage.json"
 )
