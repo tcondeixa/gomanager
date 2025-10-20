@@ -23,10 +23,31 @@ fi
 
 make build.all
 
+# Generate release notes with commit history
+echo "Generating release notes..."
+LAST_TAG=$(git tag -l --sort=-version:refname | head -1)
+
+if [ "$LAST_TAG" = "" ]; then
+    echo "No previous releases found. Including all commits."
+    COMMIT_RANGE="HEAD"
+else
+    echo "Last release: $LAST_TAG"
+    COMMIT_RANGE="$LAST_TAG..HEAD"
+fi
+
+# Generate commit list
+COMMITS=$(git log "$COMMIT_RANGE" --pretty=format:"- %s (%h)" --reverse)
+
+# Create release notes
+RELEASE_NOTES="Release $VERSION
+
+## Changes
+$COMMITS"
+
 echo "Creating GitHub release with assets..."
 gh release create "$VERSION" \
     --title "Release $VERSION" \
-    --notes "Release $VERSION" \
+    --notes "$RELEASE_NOTES" \
     gomanager-"$VERSION"-linux-amd64.tar.gz \
     gomanager-"$VERSION"-linux-arm64.tar.gz \
     gomanager-"$VERSION"-darwin-amd64.tar.gz \
