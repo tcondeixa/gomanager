@@ -27,10 +27,12 @@ homebrew_casks:
     repository:
       owner: tcondeixa
       name: homebrew-taps
+    homepage: "https://github.com/tcondeixa/gomanager"
+    description: "cli to manage go binaries"
     url:
       template: "https://github.com/tcondeixa/{{ .ProjectName }}/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     completions:
-      bash: completions/gomanager.bash
+      bash: completions/gomana.h
       zsh: completions/gomanager.zsh
       fish: completions/gomanager.fish
 
