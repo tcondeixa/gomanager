@@ -13,7 +13,7 @@ if [[ $(git tag --list | grep -c "$VERSION") -eq 0 ]]; then
 	echo "Tag $VERSION not found. Creating..."
 	git tag -a "$VERSION" -m "$VERSION"
 	git push origin "$VERSION"
-	goreleaser release
+	goreleaser release --clean
 	echo "Release $VERSION created successfully!"
 else
 	echo "Tag $VERSION already exists. Skipping..."
