@@ -8,17 +8,32 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+      - ./completions.sh
+    ldflags:
+      - -w -s
     goos:
       - darwin
 archives:
-  - formats: [tar.gz]
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+  - formats: ["tar.gz"]
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - src: completions/*
+        info:
+          owner: root
+          group: root
+          mtime: "{{ .CommitDate }}"
+brews:
+  - name: "{{ .ProjectName }}"
+    repository:
+      owner: tcondeixa
+      name: homebrew-taps
+
+    url_template: "https://github.com/tcondeixa/{{ .Project }}/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    extra_install: |
+      bash_completion.install "completions/zalando-aws-cli.bash" => "zalando-aws-cli"
+      zsh_completion.install "completions/zalando-aws-cli.zsh" => "_zalando-aws-cli"
+      fish_completion.install "completions/zalando-aws-cli.fish"
+
 changelog:
   sort: asc
   filters:
