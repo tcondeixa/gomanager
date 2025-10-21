@@ -22,17 +22,17 @@ archives:
           owner: root
           group: root
           mtime: "{{ .CommitDate }}"
-brews:
+homebrew_casks:
   - name: "{{ .ProjectName }}"
     repository:
       owner: tcondeixa
       name: homebrew-taps
-
-    url_template: "https://github.com/tcondeixa/{{ .Project }}/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    extra_install: |
-      bash_completion.install "completions/zalando-aws-cli.bash" => "zalando-aws-cli"
-      zsh_completion.install "completions/zalando-aws-cli.zsh" => "_zalando-aws-cli"
-      fish_completion.install "completions/zalando-aws-cli.fish"
+    url:
+      template: "https://github.com/tcondeixa/{{ .ProjectName }}/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    completions:
+      bash: completions/gomanager.bash
+      zsh: completions/gomanager.zsh
+      fish: completions/gomanager.fish
 
 changelog:
   sort: asc
