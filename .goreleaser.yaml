@@ -32,7 +32,7 @@ homebrew_casks:
     url:
       template: "https://github.com/tcondeixa/{{ .ProjectName }}/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     completions:
-      bash: completions/gomana.h
+      bash: completions/gomanager.bash
       zsh: completions/gomanager.zsh
       fish: completions/gomanager.fish
 
