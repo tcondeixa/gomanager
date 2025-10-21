@@ -21,46 +21,12 @@ if [ "$VERSION" = "" ]; then
     exit 1
 fi
 
-echo "Building release for version: $VERSION"
-
 # Check if tag already exists on GitHub
 if gh release view "$VERSION" >/dev/null 2>&1; then
     echo "Release $VERSION already exists. No new version defined."
     exit 0
 fi
 
-make build.all
-
-# Generate release notes with commit history
-echo "Generating release notes..."
-LAST_TAG=$(git tag -l --sort=-version:refname | head -1)
-
-if [ "$LAST_TAG" = "" ]; then
-    echo "No previous releases found. Including all commits."
-    COMMIT_RANGE="HEAD"
-else
-    echo "Last release: $LAST_TAG"
-    COMMIT_RANGE="$LAST_TAG..HEAD"
-fi
-
-# Generate commit list
-COMMITS=$(git log "$COMMIT_RANGE" --pretty=format:"- %s (%h)" --reverse)
-
-# Create release notes
-RELEASE_NOTES="Release $VERSION
-
-## Changes
-$COMMITS"
-
-echo "Creating GitHub release with assets..."
-gh release create "$VERSION" \
-    --title "Release $VERSION" \
-    --notes "$RELEASE_NOTES" \
-    gomanager-"$VERSION"-linux-amd64.tar.gz \
-    gomanager-"$VERSION"-linux-arm64.tar.gz \
-    gomanager-"$VERSION"-darwin-amd64.tar.gz \
-    gomanager-"$VERSION"-darwin-arm64.tar.gz
-
-rm -f gomanager-*.tar.gz
+goreleaser release
 
 echo "Release $VERSION created successfully!"
