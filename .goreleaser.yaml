@@ -5,10 +5,10 @@ version: 2
 before:
   hooks:
     - go mod tidy
+    - ./completions.sh
 builds:
   - env:
       - CGO_ENABLED=0
-      - ./completions.sh
     ldflags:
       - -w -s
     goos:
