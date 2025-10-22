@@ -13,22 +13,33 @@ A CLI tool to manage Go installed binaries with tracking and easy updates.
 
 ## Installation
 
-### Option 1: Install from source (recommended)
+### Option 1: Install via Homebrew
+
+```bash
+brew tap tcondeixa/taps
+brew install --cask gomanager
+```
+
+This will install the binary with shell completions for Bash, Zsh, and Fish.
+See the [homebrew-taps repository](https://github.com/tcondeixa/homebrew-taps) for more details.
+
+### Option 2: Install from source
 
 ```bash
 go install github.com/tcondeixa/gomanager@latest
 ```
 
-### Option 2: Download pre-built binaries
+### Option 3: Download pre-built binaries
 
-Download the latest release for your platform from the [releases page](https://github.com/tcondeixa/gomanager/releases).
+Download the latest release for your OS and architecture from the
+[github releases](https://github.com/tcondeixa/gomanager/releases).
 
-### Option 3: Build from source
+### Option 4: Build from source
 
 ```bash
 git clone https://github.com/tcondeixa/gomanager.git
 cd gomanager
-make build.local
+make
 # Binary will be in bin/gomanager
 ```
 
@@ -154,17 +165,12 @@ gomanager uninstall air goreleaser
 
 ## Shell Completion
 
-Enable shell completion for better UX:
+Enable shell completion for better UX.
+The Homebrew installation includes completions automatically.
+The following commands will provide instruction for the different OS and Shells.
 
 ```bash
-# Bash
-gomanager completion bash > /etc/bash_completion.d/gomanager
-
-# Zsh
-gomanager completion zsh > "${fpath[1]}/_gomanager"
-
-# Fish
-gomanager completion fish > ~/.config/fish/completions/gomanager.fish
+gomanager completion --help
 ```
 
 ## Requirements
