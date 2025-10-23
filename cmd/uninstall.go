@@ -29,7 +29,7 @@ func installedPackagesCompletion(
 	_ string,
 ) ([]cobra.Completion, cobra.ShellCompDirective) {
 	db := storage.New[pkg.Package](rootOptions.storagePath)
-	err := db.Load()
+	err := db.Start()
 	if err != nil {
 		return []cobra.Completion{}, cobra.ShellCompDirectiveError
 	}
@@ -44,7 +44,7 @@ func init() {
 
 func runUninstall(_ *cobra.Command, args []string) error {
 	db := storage.New[pkg.Package](rootOptions.storagePath)
-	err := db.Load()
+	err := db.Start()
 	if err != nil {
 		return err
 	}
@@ -69,8 +69,7 @@ func runUninstall(_ *cobra.Command, args []string) error {
 		}
 		slog.Info("Removed binary", "path", binPath)
 
-		db.DeleteItem(item.ID())
-		err = db.Save()
+		err = db.DeleteItem(item.ID())
 		if err != nil {
 			return err
 		}

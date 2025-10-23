@@ -45,11 +45,6 @@ func runimport(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("failed to import storage: %w", err)
 	}
 
-	err = db.Save()
-	if err != nil {
-		return fmt.Errorf("failed to save storage: %w", err)
-	}
-
 	items := db.GetAllItems()
 	for _, item := range items {
 		slog.Info("Install package", "package", item.URI, "current_version", item.Version)
@@ -58,8 +53,7 @@ func runimport(_ *cobra.Command, _ []string) error {
 			return fmt.Errorf("failed to install package %s: %v", item, err)
 		}
 
-		db.SaveItem(item.ID(), item)
-		err = db.Save()
+		err = db.SaveItem(item.ID(), item)
 		if err != nil {
 			return fmt.Errorf("failed to save installed package %s: %v", item, err)
 		}

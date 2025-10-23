@@ -41,7 +41,7 @@ func runInstall(_ *cobra.Command, args []string) error {
 	}
 
 	db := storage.New[pkg.Package](rootOptions.storagePath)
-	err := db.Load()
+	err := db.Start()
 	if err != nil {
 		return err
 	}
@@ -97,8 +97,7 @@ func runInstall(_ *cobra.Command, args []string) error {
 			pack.Name = installOptions.name
 		}
 
-		db.SaveItem(pack.ID(), *pack)
-		err = db.Save()
+		err = db.SaveItem(pack.ID(), *pack)
 		if err != nil {
 			return err
 		}

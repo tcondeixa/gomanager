@@ -7,21 +7,35 @@ import (
 	"time"
 )
 
-type Storage[T any] struct {
-	filePath  string
-	updatedAt time.Time
-	binaries  map[string]T
+const version = "v1"
+
+type File[T any] struct {
+	Version   string       `json:"version"`
+	UpdatedAt time.Time    `json:"updated_at"`
+	Binaries  map[string]T `json:"binaries"`
 }
 
-func New[T any](filePath string) *Storage[T] {
-	return &Storage[T]{
-		filePath:  filePath,
-		updatedAt: time.Now(),
-		binaries:  map[string]T{},
+func NewFile[T any]() File[T] {
+	return File[T]{
+		UpdatedAt: time.Now(),
+		Version:   version,
+		Binaries:  map[string]T{},
 	}
 }
 
-func (s *Storage[T]) Load() error {
+type Provider[T any] struct {
+	filePath   string
+	fileFormat File[T]
+}
+
+func New[T any](filePath string) *Provider[T] {
+	return &Provider[T]{
+		filePath:   filePath,
+		fileFormat: NewFile[T](),
+	}
+}
+
+func (s *Provider[T]) Start() error {
 	err := s.ensureFile()
 	if err != nil {
 		return fmt.Errorf("failed to ensure storage file: %w", err)
@@ -35,56 +49,40 @@ func (s *Storage[T]) Load() error {
 	return nil
 }
 
-func (s *Storage[T]) Import(file string) error {
-	return s.loadFile(file)
-}
-
-func (s *Storage[T]) Save() error {
-	return s.save(s.filePath, os.O_WRONLY)
-}
-
-func (s *Storage[T]) Export(file string) error {
-	return s.save(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
-}
-
-func (s *Storage[T]) save(file string, flag int) error {
-	fp, err := os.OpenFile(file, flag, 0o644)
+func (s *Provider[T]) Import(file string) error {
+	err := s.loadFile(file)
 	if err != nil {
-		return err
-	}
-	defer fp.Close()
-
-	err = json.NewEncoder(fp).Encode(s.binaries)
-	if err != nil {
-		return err
+		return fmt.Errorf("failed to import storage file: %w", err)
 	}
 
-	err = fp.Sync()
+	return s.saveFile(s.filePath)
+}
+
+func (s *Provider[T]) Export(file string) error {
+	return s.saveFile(file)
+}
+
+func (s *Provider[T]) saveFile(file string) error {
+	bytes, err := json.MarshalIndent(s.fileFormat, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to encode items to json: %w", err)
+	}
+
+	err = os.WriteFile(file, bytes, 0o644)
+	if err != nil {
+		return fmt.Errorf("failed to write items to file: %w", err)
 	}
 
 	return nil
 }
 
-func (s *Storage[T]) ensureFile() error {
+func (s *Provider[T]) ensureFile() error {
 	_, err := os.Stat(s.filePath)
 	if err == nil {
 		return nil
 	}
 
-	fp, err := os.Create(s.filePath)
-	if err != nil {
-		return err
-	}
-	defer fp.Close()
-
-	err = json.NewEncoder(fp).Encode(map[string]T{})
-	if err != nil {
-		return err
-	}
-
-	err = fp.Sync()
+	err = s.saveFile(s.filePath)
 	if err != nil {
 		return err
 	}
@@ -92,34 +90,38 @@ func (s *Storage[T]) ensureFile() error {
 	return nil
 }
 
-func (s *Storage[T]) loadFile(file string) error {
-	fp, err := os.OpenFile(file, os.O_RDONLY, 0o644)
+func (s *Provider[T]) loadFile(file string) error {
+	bytes, err := os.ReadFile(file)
 	if err != nil {
-		return fmt.Errorf("failed to open storage file: %w", err)
+		return fmt.Errorf("failed to read storage file: %w", err)
 	}
-	defer fp.Close()
-
-	err = json.NewDecoder(fp).Decode(&s.binaries)
+	err = json.Unmarshal(bytes, &s.fileFormat)
 	if err != nil {
-		return fmt.Errorf("failed to decode storage file: %w", err)
+		return fmt.Errorf("failed to unmarshal storage file: %w", err)
 	}
 
 	return nil
 }
 
-func (s *Storage[T]) SaveItem(key string, item T) {
-	s.binaries[key] = item
+func (s *Provider[T]) SaveItem(key string, item T) error {
+	s.fileFormat.Binaries[key] = item
+	s.fileFormat.UpdatedAt = time.Now()
+
+	return s.saveFile(s.filePath)
 }
 
-func (s *Storage[T]) DeleteItem(key string) {
-	delete(s.binaries, key)
+func (s *Provider[T]) DeleteItem(key string) error {
+	delete(s.fileFormat.Binaries, key)
+	s.fileFormat.UpdatedAt = time.Now()
+
+	return s.saveFile(s.filePath)
 }
 
-func (s *Storage[T]) GetItem(key string) (T, bool) {
-	val, ok := s.binaries[key]
+func (s *Provider[T]) GetItem(key string) (T, bool) {
+	val, ok := s.fileFormat.Binaries[key]
 	return val, ok
 }
 
-func (s *Storage[T]) GetAllItems() map[string]T {
-	return s.binaries
+func (s *Provider[T]) GetAllItems() map[string]T {
+	return s.fileFormat.Binaries
 }

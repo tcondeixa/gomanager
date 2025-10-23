@@ -42,7 +42,7 @@ func init() {
 
 func runList(_ *cobra.Command, _ []string) error {
 	db := storage.New[pkg.Package](rootOptions.storagePath)
-	err := db.Load()
+	err := db.Start()
 	if err != nil {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}

@@ -50,7 +50,7 @@ func init() {
 
 func runUpdate(_ *cobra.Command, _ []string) error {
 	db := storage.New[pkg.Package](rootOptions.storagePath)
-	err := db.Load()
+	err := db.Start()
 	if err != nil {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}
@@ -68,8 +68,7 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 		}
 
 		item.UpdateVersion("latest")
-		db.SaveItem(item.ID(), item)
-		err = db.Save()
+		err = db.SaveItem(item.ID(), item)
 		if err != nil {
 			return fmt.Errorf("failed to save updated package %s: %v", item, err)
 		}
@@ -87,8 +86,7 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 				return fmt.Errorf("failed to install package %s: %v", item, err)
 			}
 
-			db.SaveItem(item.ID(), item)
-			err = db.Save()
+			err = db.SaveItem(item.ID(), item)
 			if err != nil {
 				return fmt.Errorf("failed to save updated package %s: %v", item, err)
 			}
