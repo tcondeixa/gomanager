@@ -36,6 +36,12 @@ homebrew_casks:
       bash: completions/gomanager.bash
       zsh: completions/gomanager.zsh
       fish: completions/gomanager.fish
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gomanager"]
+          end
 
 changelog:
   sort: asc
