@@ -48,10 +48,12 @@ func runimport(_ *cobra.Command, _ []string) error {
 	items := db.GetAllItems()
 	for _, item := range items {
 		slog.Info("Install package", "package", item.URI, "current_version", item.Version)
-		err := item.Install()
+		output, err := item.Install()
 		if err != nil {
 			return fmt.Errorf("failed to install package %s: %v", item, err)
 		}
+
+		fmt.Println(rootOptions.colorScheme.Text(output))
 
 		err = db.SaveItem(item.ID(), item)
 		if err != nil {

@@ -71,15 +71,15 @@ func printAsJSON(items map[string]pkg.Package) error {
 
 func printAsText(items map[string]pkg.Package) error {
 	if len(items) == 0 {
-		fmt.Println("No installed packages found.")
+		fmt.Println(rootOptions.colorScheme.Text("No installed packages found."))
 		return nil
 	}
 
-	fmt.Println("Installed Packages:")
-	fmt.Println("-------------------")
+	fmt.Println(rootOptions.colorScheme.Header("Installed Packages:"))
+	fmt.Println(rootOptions.colorScheme.Header("-------------------"))
 	for _, item := range items {
-		fmt.Println(item.String())
-		fmt.Println("-------------------")
+		fmt.Println(rootOptions.colorScheme.Text(item.String()))
+		fmt.Println(rootOptions.colorScheme.Header("-------------------"))
 	}
 
 	return nil

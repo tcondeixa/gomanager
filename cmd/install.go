@@ -81,10 +81,12 @@ func runInstall(_ *cobra.Command, args []string) error {
 			}
 		}
 
-		err = pack.Install()
+		output, err := pack.Install()
 		if err != nil {
 			return fmt.Errorf("failed to install package %s: %v", item, err)
 		}
+
+		fmt.Println(rootOptions.colorScheme.Text(output))
 
 		if installOptions.name != "" {
 			oldPath := filepath.Join(path, pack.Name)
@@ -102,7 +104,7 @@ func runInstall(_ *cobra.Command, args []string) error {
 			return err
 		}
 
-		fmt.Println("Installed package: ", pack.Name)
+		fmt.Println(rootOptions.colorScheme.Header("Installed package: " + pack.Name))
 	}
 
 	return nil

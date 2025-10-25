@@ -51,7 +51,7 @@ func runExport(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("failed to export installed packages: %w", err)
 	}
 
-	fmt.Println("Installed packages exported to: ", exportOptions.filePath)
+	fmt.Println(rootOptions.colorScheme.Text("Installed packages exported to: " + exportOptions.filePath))
 
 	return nil
 }

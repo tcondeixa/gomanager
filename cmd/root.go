@@ -8,21 +8,42 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tcondeixa/gomanager/internal/color"
 )
 
 const (
-	binaryName            = "gomanager"
-	gomanagerConfigDirEnv = "GOMANAGER_CONFIG_DIR"
-	gomanagerDir          = "gomanager"
-	gomanagerStorage      = "storage.json"
+	binaryName              = "gomanager"
+	configDirEnv            = "GOMANAGER_CONFIG_DIR"
+	configDir               = "gomanager"
+	storageFile             = "storage.json"
+	colorSchemeEnv          = "GOMANAGER_COLOR_SCHEME"
+	defaultTextKey          = "tx"
+	defaultTextKeyWithSep   = defaultTextKey + ":"
+	defaultHeaderKey        = "hd"
+	defaultHeaderKeyWithSep = defaultHeaderKey + ":"
+	defaultErKey            = "er"
+	defaultErrKeyWithSep    = defaultErKey + ":"
+	defaultTextColor        = "#f5e0dc"
+	defaultHeaderColor      = "#cba6f7"
+	defaultErrColor         = "#f38ba8"
 )
 
-var logLevels = []string{"error", "warn", "info", "debug"}
+var (
+	logLevels           = []string{"error", "warn", "info", "debug"}
+	defaultColorOptions = []string{
+		defaultTextKeyWithSep + defaultTextColor,
+		defaultHeaderKeyWithSep + defaultHeaderColor,
+		defaultErrKeyWithSep + defaultErrColor,
+	}
+	defaultColorScheme = strings.Join(defaultColorOptions, ",")
+)
 
 var rootOptions struct {
 	logLevel    string
 	configDir   string
 	storagePath string
+	noColor     bool
+	colorScheme color.Scheme
 }
 
 var rootCmd = &cobra.Command{
@@ -38,7 +59,7 @@ func Execute(version string) {
 }
 
 func init() {
-	cobra.OnInitialize(initLogging, getConfigDir)
+	cobra.OnInitialize(initLogging, getConfigDir, colorScheme)
 
 	rootCmd.PersistentFlags().StringVarP(
 		&rootOptions.logLevel,
@@ -52,6 +73,13 @@ func init() {
 		"log",
 		cobra.FixedCompletions(logLevels, cobra.ShellCompDirectiveDefault),
 	))
+
+	rootCmd.PersistentFlags().BoolVar(
+		&rootOptions.noColor,
+		"no-color",
+		false,
+		"output with colors",
+	)
 }
 
 func initLogging() {
@@ -74,7 +102,7 @@ func initLogging() {
 }
 
 func getConfigDir() {
-	rootOptions.configDir = os.Getenv(gomanagerConfigDirEnv)
+	rootOptions.configDir = os.Getenv(configDirEnv)
 	if rootOptions.configDir == "" {
 		userDir, err := os.UserConfigDir()
 		if err != nil {
@@ -82,7 +110,7 @@ func getConfigDir() {
 			os.Exit(1)
 		}
 
-		rootOptions.configDir = filepath.Join(userDir, gomanagerDir)
+		rootOptions.configDir = filepath.Join(userDir, configDir)
 	}
 
 	// ensure the config dir exists
@@ -93,7 +121,7 @@ func getConfigDir() {
 		os.Exit(1)
 	}
 
-	rootOptions.storagePath = filepath.Join(rootOptions.configDir, gomanagerStorage)
+	rootOptions.storagePath = filepath.Join(rootOptions.configDir, storageFile)
 	slog.Info("using storage file", "path", rootOptions.storagePath)
 }
 
@@ -114,4 +142,49 @@ func goBinPath() (string, error) {
 	}
 
 	return fmt.Sprintf("%s/go/bin", home), nil
+}
+
+func colorScheme() {
+	colorSchemeText := os.Getenv(colorSchemeEnv)
+	if colorSchemeText == "" {
+		colorSchemeText = defaultColorScheme
+	}
+
+	slog.Info("Color option", "no-color", rootOptions.noColor)
+	textColor := defaultTextColor
+	headerColor := defaultHeaderColor
+	errColor := defaultErrColor
+	if rootOptions.noColor {
+		rootOptions.colorScheme = *color.NewScheme(rootOptions.noColor, textColor, headerColor, errColor)
+	}
+
+	// format expected "tx:#f5e0dc,hd:#cba6f7,er:#f38ba8"
+	colors := strings.Split(strings.TrimSpace(colorSchemeText), ",")
+	for _, c := range colors {
+		switch {
+		case strings.HasPrefix(c, defaultTextKeyWithSep):
+			textColor = strings.TrimPrefix(c, defaultTextKeyWithSep)
+			_, err := color.HexToRGB(textColor)
+			if err != nil {
+				textColor = defaultTextColor
+			}
+		case strings.HasPrefix(c, defaultHeaderKeyWithSep):
+			headerColor = strings.TrimPrefix(c, defaultHeaderKeyWithSep)
+			_, err := color.HexToRGB(headerColor)
+			if err != nil {
+				headerColor = defaultHeaderColor
+			}
+		case strings.HasPrefix(c, defaultErrKeyWithSep):
+			errColor = strings.TrimPrefix(c, defaultErrKeyWithSep)
+			_, err := color.HexToRGB(errColor)
+			if err != nil {
+				errColor = defaultErrColor
+			}
+		}
+	}
+
+	if !rootOptions.noColor {
+		slog.Info("color scheme", "text", textColor, "header", headerColor, "error", errColor)
+	}
+	rootOptions.colorScheme = *color.NewScheme(rootOptions.noColor, textColor, headerColor, errColor)
 }

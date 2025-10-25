@@ -46,18 +46,21 @@ func (p *Package) URIWithVersion() string {
 	return fmt.Sprintf("%s@%s", p.URI, p.Version)
 }
 
-func (p *Package) Install() error {
+func (p *Package) Install() (string, error) {
 	cmd := exec.Command("go", "install", p.URIWithVersion())
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("failed to install package: %v, stderr: %s", err, stderr.String())
+		return "", fmt.Errorf("failed to install package: %v, stderr: %s", err, stderr.String())
 	}
 
-	fmt.Println(stdout.String())
-	return nil
+	if stderr.Len() > 0 {
+		return "", fmt.Errorf("failed to install package, stderr: %s", stderr.String())
+	}
+
+	return stdout.String(), nil
 }
 
 func (p *Package) UpdateVersion(version string) {

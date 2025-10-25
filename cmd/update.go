@@ -62,10 +62,12 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 		}
 
 		item.UpdateVersion("latest")
-		err := item.Install()
+		output, err := item.Install()
 		if err != nil {
 			return fmt.Errorf("failed to install package %s: %v", item, err)
 		}
+
+		fmt.Println(rootOptions.colorScheme.Text(output))
 
 		item.UpdateVersion("latest")
 		err = db.SaveItem(item.ID(), item)
@@ -81,17 +83,19 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 		if item.Version == "latest" || updateOptions.forceNonLatest {
 			slog.Info("Updating package", "package", item.URI, "current_version", item.Version)
 			item.UpdateVersion("latest")
-			err := item.Install()
+			output, err := item.Install()
 			if err != nil {
 				return fmt.Errorf("failed to install package %s: %v", item, err)
 			}
+
+			fmt.Println(rootOptions.colorScheme.Text(output))
 
 			err = db.SaveItem(item.ID(), item)
 			if err != nil {
 				return fmt.Errorf("failed to save updated package %s: %v", item, err)
 			}
 
-			fmt.Printf("Package %s updated successfully\n", item.Name)
+			fmt.Println(rootOptions.colorScheme.Text("Package " + item.Name + " updated successfully"))
 		}
 	}
 

@@ -25,7 +25,7 @@ var unistallCmd = &cobra.Command{
 
 func installedPackagesCompletion(
 	_ *cobra.Command,
-	_ []string,
+	args []string,
 	_ string,
 ) ([]cobra.Completion, cobra.ShellCompDirective) {
 	db := storage.New[pkg.Package](rootOptions.storagePath)
@@ -35,7 +35,13 @@ func installedPackagesCompletion(
 	}
 
 	allItems := db.GetAllItems()
-	return slices.Collect(maps.Keys(allItems)), cobra.ShellCompDirectiveNoFileComp
+	for arg := range args {
+		_, exists := allItems[args[arg]]
+		if exists {
+			delete(allItems, args[arg])
+		}
+	}
+	return slices.Collect(maps.Keys(allItems)), cobra.ShellCompDirectiveNoSpace
 }
 
 func init() {
