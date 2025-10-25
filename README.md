@@ -43,6 +43,16 @@ make
 # Binary will be in bin/gomanager
 ```
 
+### Configurations
+
+There are a few configurations you can use that are set via environment variables:
+
+- `GOMANAGER_CONFIG_DIR`: Set custom config directory (default is OS-specific config dir)
+- `GOMANAGER_COLOR_SCHEME`: Set the color scheme for output using the format `tx:#f5e0dc,hd:#cba6f7,er:#f38ba8`
+  - `tx`: Text color
+  - `hd`: Header color
+  - `er`: Error color
+
 ## Quick Start
 
 ```bash
