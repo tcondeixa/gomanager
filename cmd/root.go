@@ -1,15 +1,21 @@
 package cmd
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
+	_ "embed"
+
 	"github.com/spf13/cobra"
 	"github.com/tcondeixa/gomanager/internal/color"
 )
+
+//go:embed images/gopher.jpeg
+var image string
 
 const (
 	binaryName              = "gomanager"
@@ -80,6 +86,36 @@ func init() {
 		false,
 		"output with colors",
 	)
+
+	printLogo()
+}
+
+func checkTerminalImageSupport() string {
+	// Check for iTerm2 support
+	term := os.Getenv("TERM_PROGRAM")
+	if term == "iTerm.app" || term == "WezTerm" {
+		return "iterm2"
+	}
+
+	// Check for Kitty support
+	if os.Getenv("KITTY_WINDOW_ID") != "" ||
+		os.Getenv("KITTY_PID") != "" ||
+		strings.Contains(os.Getenv("TERM"), "kitty") {
+		return "kitty"
+	}
+
+	return ""
+}
+
+func printLogo() {
+	term_img_protocol := checkTerminalImageSupport()
+	encodedString := base64.StdEncoding.EncodeToString([]byte(image))
+	switch term_img_protocol {
+	case "iterm2":
+		fmt.Printf("\033]1337;File=inline=2;width=10%%;preserveAspectRatio=1:%s\a\n", encodedString)
+	case "kitty":
+		fmt.Printf("\033_Ga=T,f=100,s=100,v=100,m=0;%s\033\\", encodedString)
+	}
 }
 
 func initLogging() {
@@ -159,8 +195,8 @@ func colorScheme() {
 	}
 
 	// format expected "tx:#f5e0dc,hd:#cba6f7,er:#f38ba8"
-	colors := strings.Split(strings.TrimSpace(colorSchemeText), ",")
-	for _, c := range colors {
+	colorsIter := strings.SplitSeq(strings.TrimSpace(colorSchemeText), ",")
+	for c := range colorsIter {
 		switch {
 		case strings.HasPrefix(c, defaultTextKeyWithSep):
 			textColor = strings.TrimPrefix(c, defaultTextKeyWithSep)
