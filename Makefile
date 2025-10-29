@@ -84,7 +84,7 @@ build/darwin/amd64/$(BINARY): $(SOURCES)
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) -o bin/darwin/amd64/$(BINARY) -ldflags "$(LDFLAGS)" .
 
 build/darwin/arm64/$(BINARY): $(SOURCES)
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build $(BUILD_FLAGS) -o bin/darwin/arm64/$(BINARY) -ldflags "$(LDFLAGS)" .
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build $(BUILD_FLAGS) -o bin/darwin/arm64/$(BINARY) -ldflags "$(LDFLAGS)" .
 
 .PHONY: build.all
 build.all: build.linux.amd64 build.linux.arm64 build.darwin.amd64 build.darwin.arm64 ## Create all tars with binaries for darwin/linux with arm64/amd64
