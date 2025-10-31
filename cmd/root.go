@@ -15,7 +15,7 @@ import (
 )
 
 //go:embed images/gopher.jpeg
-var image string
+var image []byte
 
 const (
 	binaryName              = "gomanager"
@@ -109,7 +109,7 @@ func checkTerminalImageSupport() string {
 
 func printLogo() {
 	term_img_protocol := checkTerminalImageSupport()
-	encodedString := base64.StdEncoding.EncodeToString([]byte(image))
+	encodedString := base64.StdEncoding.EncodeToString(image)
 	switch term_img_protocol {
 	case "iterm2":
 		fmt.Printf("\033]1337;File=inline=2;width=10%%;preserveAspectRatio=1:%s\a\n", encodedString)
